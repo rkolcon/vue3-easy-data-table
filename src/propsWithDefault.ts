@@ -194,5 +194,9 @@ export default {
   showIndexSymbol: {
     type: String,
     default: '#',
-  }
+  },
+  mobileBreakpoint: {
+    type: Number,
+    default: 1200,
+  },
 };

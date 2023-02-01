@@ -1,13 +1,13 @@
 <template>
   <div
-    ref="dataTable"
-    class="vue3-easy-data-table"
-    :class="[tableClassName]"
+      ref="dataTable"
+      class="vue3-easy-data-table"
+      :class="[tableClassName]"
   >
     <div
-      ref="tableBody"
-      class="vue3-easy-data-table__main"
-      :class="{
+        ref="tableBody"
+        class="vue3-easy-data-table__main"
+        :class="{
         'fixed-header': fixedHeader,
         'fixed-height': tableHeight,
         'show-shadow': showShadow,
@@ -19,18 +19,18 @@
       <table :id="tableNodeId">
         <colgroup>
           <col
-            v-for="(header, index) in headersForRender"
-            :key="index"
-            :style="getColStyle(header)"
+              v-for="(header, index) in headersForRender"
+              :key="index"
+              :style="getColStyle(header)"
           />
         </colgroup>
         <thead
-          v-if="headersForRender.length && !hideHeader"
-          class="vue3-easy-data-table__header"
-          :class="[headerClassName]"
+            v-if="headersForRender.length && !hideHeader && windowSize >= mobileBreakpoint"
+            class="vue3-easy-data-table__header"
+            :class="[headerClassName]"
         >
-          <tr>
-            <th
+        <tr>
+          <th
               v-for="(header, index) in headersForRender"
               :key="index"
               :class="[{
@@ -43,61 +43,61 @@
               }, typeof headerItemClassName === 'string' ? headerItemClassName : headerItemClassName(header as Header, index + 1)]"
               :style="getFixedDistance(header.value)"
               @click.stop="(header.sortable && header.sortType) ? updateSortField(header.value, header.sortType) : null"
-            >
-              <MultipleSelectCheckBox
+          >
+            <MultipleSelectCheckBox
                 v-if="header.text === 'checkbox'"
                 :key="multipleSelectStatus"
                 :status="multipleSelectStatus"
                 @change="toggleSelectAll"
-              />
-              <span
+            />
+            <span
                 v-else
                 class="header"
                 :class="`direction-${headerTextDirection}`"
-              >
+            >
                 <slot
-                  v-if="slots[`header-${header.value}`]"
-                  :name="`header-${header.value}`"
-                  v-bind="header"
+                    v-if="slots[`header-${header.value}`]"
+                    :name="`header-${header.value}`"
+                    v-bind="header"
                 />
                 <slot
-                  v-else-if="slots[`header-${header.value.toLowerCase()}`]"
-                  :name="`header-${header.value.toLowerCase()}`"
-                  v-bind="header"
+                    v-else-if="slots[`header-${header.value.toLowerCase()}`]"
+                    :name="`header-${header.value.toLowerCase()}`"
+                    v-bind="header"
                 />
                 <span
-                  v-else
-                  class="header-text"
+                    v-else
+                    class="header-text"
                 >
                   {{ header.text }}
                 </span>
                 <i
-                  v-if="header.sortable"
-                  :key="header.sortType ? header.sortType : 'none'"
-                  class="sortType-icon"
-                  :class="{'desc': header.sortType === 'desc'}"
+                    v-if="header.sortable"
+                    :key="header.sortType ? header.sortType : 'none'"
+                    class="sortType-icon"
+                    :class="{'desc': header.sortType === 'desc'}"
                 ></i>
                 <span
-                  v-if="multiSort && isMultiSorting(header.value)"
-                  class="multi-sort__number"
+                    v-if="multiSort && isMultiSorting(header.value)"
+                    class="multi-sort__number"
                 >
                   {{ getMultiSortNumber(header.value) }}
                 </span>
               </span>
-            </th>
-          </tr>
+          </th>
+        </tr>
         </thead>
         <slot
-          v-if="ifHasBodySlot"
-          name="body"
-          v-bind="pageItems"
+            v-if="ifHasBodySlot"
+            name="body"
+            v-bind="pageItems"
         />
         <tbody
-          v-else-if="headerColumns.length"
-          class="vue3-easy-data-table__body"
-          :class="{'row-alternation': alternating}"
+            v-else-if="headerColumns.length"
+            class="vue3-easy-data-table__body"
+            :class="{'row-alternation': alternating}"
         >
-          <slot
+        <slot
             name="body-prepend"
             v-bind="{
               items: pageItems,
@@ -111,12 +111,13 @@
               },
               headers: headersForRender
             }"
-          />
-          <template
+        />
+        <template
+            v-if="windowSize >= mobileBreakpoint"
             v-for="(item, index) in pageItems"
             :key="index"
-          >
-            <tr
+        >
+          <tr
               :class="[{'even-row': (index + 1) % 2 === 0},
                        typeof bodyRowClassName === 'string' ? bodyRowClassName : bodyRowClassName(item, index + 1)]"
               @click="($event) => {
@@ -124,8 +125,8 @@
                 clickRowToExpand && updateExpandingItemIndexList(index + prevPageEndIndex, item, $event);
               }"
               @dblclick="clickRow(item, 'double')"
-            >
-              <td
+          >
+            <td
                 v-for="(column, i) in headerColumns"
                 :key="i"
                 :style="getFixedDistance(column, 'td')"
@@ -135,55 +136,193 @@
                 // eslint-disable-next-line max-len
                 }, typeof bodyItemClassName === 'string' ? bodyItemClassName : bodyItemClassName(column, index + 1), `direction-${bodyTextDirection}`]"
                 @click="column === 'expand' ? updateExpandingItemIndexList(index + prevPageEndIndex, item, $event) : null"
-              >
-                <slot
+            >
+              <slot
                   v-if="slots[`item-${column}`]"
                   :name="`item-${column}`"
                   v-bind="item"
-                />
-                <slot
+              />
+              <slot
                   v-else-if="slots[`item-${column.toLowerCase()}`]"
                   :name="`item-${column.toLowerCase()}`"
                   v-bind="item"
-                />
-                <template v-else-if="column === 'expand'">
-                  <i
+              />
+              <template v-else-if="column === 'expand'">
+                <i
                     class="expand-icon"
                     :class="{'expanding': expandingItemIndexList.includes(prevPageEndIndex + index)}"
-                  />
-                </template>
-                <template v-else-if="column === 'checkbox'">
-                  <SingleSelectCheckBox
+                />
+              </template>
+              <template v-else-if="column === 'checkbox'">
+                <SingleSelectCheckBox
                     :checked="item[column]"
                     @change="toggleSelectItem(item)"
-                  />
-                </template>
-                <template v-else>
-                  {{ generateColumnContent(column, item) }}
-                </template>
-              </td>
-            </tr>
-            <tr
+                />
+              </template>
+              <template v-else>
+                {{ generateColumnContent(column, item) }}
+              </template>
+            </td>
+          </tr>
+          <tr
               v-if="ifHasExpandSlot && expandingItemIndexList.includes(index + prevPageEndIndex)"
               :class="[{'even-row': (index + 1) % 2 === 0},
                        typeof bodyExpandRowClassName === 'string' ? bodyExpandRowClassName : bodyExpandRowClassName(item, index + 1)]"
-            >
-              <td
+          >
+            <td
                 :colspan="headersForRender.length"
                 class="expand"
-              >
-                <LoadingLine
+            >
+              <LoadingLine
                   v-if="item.expandLoading"
                   class="expand-loading"
-                />
-                <slot
+              />
+              <slot
                   name="expand"
                   v-bind="item"
-                />
-              </td>
-            </tr>
-          </template>
-          <slot
+              />
+            </td>
+          </tr>
+        </template>
+        <template
+            v-else
+            v-for="(item, indexx) in pageItems"
+            :key="indexx"
+        >
+          <tr
+              :class="[{'even-row': (indexx + 1) % 2 === 0},
+                       typeof bodyRowClassName === 'string' ? bodyRowClassName : bodyRowClassName(item, indexx + 1)]"
+              @click="($event) => {
+                clickRow(item, 'single');
+                clickRowToExpand && updateExpandingItemIndexList(indexx + prevPageEndIndex, item, $event);
+              }"
+              @dblclick="clickRow(item, 'double')"
+          >
+            <td
+                :colspan="headerColumns.length"
+                :class="[{
+                  'can-expand': headerColumns.find(c => c === 'expand'),
+                }]"
+                @click="headerColumns.find(c => c === 'expand') ? updateExpandingItemIndexList(indexx + prevPageEndIndex, item, $event) : null"
+            >
+              <template
+                  v-for="(column, i) in headerColumns"
+                  :key="i"
+              >
+                <div class="easy-datatable-mobile-column">
+                  <div class="easy-data-table-mobile-field-name">
+
+                    <table>
+                      <thead
+                          class="vue3-easy-data-table__header"
+                          :class="[headerClassName]"
+                      >
+                      <tr>
+                        <th
+                            :class="[{
+                sortable: headersForRender[i].sortable,
+                'none': headersForRender[i].sortable && headersForRender[i].sortType === 'none',
+                'desc': headersForRender[i].sortable && headersForRender[i].sortType === 'desc',
+                'asc': headersForRender[i].sortable && headersForRender[i].sortType === 'asc',
+                'shadow': headersForRender[i].value === lastFixedColumn,
+              // eslint-disable-next-line max-len
+              }, typeof headerItemClassName === 'string' ? headerItemClassName : headerItemClassName(headersForRender[i] as Header, indexx + 1)]"
+                            :style="getFixedDistance(headersForRender[i].value)"
+                            @click.stop="(headersForRender[i].sortable && headersForRender[i].sortType) ? updateSortField(headersForRender[i].value, headersForRender[i].sortType) : null"
+                        >
+                          <span v-if="headersForRender[i].text === 'checkbox'"></span>
+                          <span
+                              class="header"
+                              :class="`direction-${headerTextDirection}`"
+                              v-else
+                          >
+                            <slot
+                                v-if="slots[`header-${headersForRender[i].value}`]"
+                                :name="`header-${headersForRender[i].value}`"
+                                v-bind="headersForRender[i]"
+                            />
+                            <slot
+                                v-else-if="slots[`header-${headersForRender[i].value.toLowerCase()}`]"
+                                :name="`header-${headersForRender[i].value.toLowerCase()}`"
+                                v-bind="headersForRender[i]"
+                            />
+                            <span
+                                v-else
+                                class="header-text"
+                            >
+                              {{ headersForRender[i].text }}
+                            </span>
+                            <i
+                                v-if="headersForRender[i].sortable"
+                                :key="headersForRender[i].sortType ? headersForRender[i].sortType : 'none'"
+                                class="sortType-icon"
+                                :class="{'desc': headersForRender[i].sortType === 'desc'}"
+                            ></i>
+                            <span
+                                v-if="multiSort && isMultiSorting(headersForRender[i].value)"
+                                class="multi-sort__number"
+                            >
+                              {{ getMultiSortNumber(headersForRender[i].value) }}
+                            </span>
+                          </span>
+                        </th>
+                      </tr>
+                      </thead>
+                    </table>
+
+                  </div>
+                  <div class="easy-data-table-mobile-field-value">
+                    <slot
+                        v-if="slots[`item-${column}`]"
+                        :name="`item-${column}`"
+                        v-bind="item"
+                    />
+                    <slot
+                        v-else-if="slots[`item-${column.toLowerCase()}`]"
+                        :name="`item-${column.toLowerCase()}`"
+                        v-bind="item"
+                    />
+                    <template v-else-if="column === 'expand'">
+                      <i
+                          class="expand-icon"
+                          :class="{'expanding': expandingItemIndexList.includes(prevPageEndIndex + indexx)}"
+                      />
+                    </template>
+                    <template v-else-if="column === 'checkbox'">
+                      <SingleSelectCheckBox
+                          :checked="item[column]"
+                          @change="toggleSelectItem(item)"
+                      />
+                    </template>
+                    <template v-else>
+                      {{ generateColumnContent(column, item) }}
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </td>
+          </tr>
+          <tr
+              v-if="ifHasExpandSlot && expandingItemIndexList.includes(indexx + prevPageEndIndex)"
+              :class="[{'even-row': (indexx + 1) % 2 === 0},
+                       typeof bodyExpandRowClassName === 'string' ? bodyExpandRowClassName : bodyExpandRowClassName(item, indexx + 1)]"
+          >
+            <td
+                :colspan="headersForRender.length"
+                class="expand"
+            >
+              <LoadingLine
+                  v-if="item.expandLoading"
+                  class="expand-loading"
+              />
+              <slot
+                  name="expand"
+                  v-bind="item"
+              />
+            </td>
+          </tr>
+        </template>
+        <slot
             name="body-append"
             v-bind="{
               items: pageItems,
@@ -198,44 +337,44 @@
               },
               headers: headersForRender
             }"
-          />
+        />
         </tbody>
       </table>
       <div
-        v-if="loading"
-        class="vue3-easy-data-table__loading"
+          v-if="loading"
+          class="vue3-easy-data-table__loading"
       >
         <div
-          class="vue3-easy-data-table__loading-mask "
+            class="vue3-easy-data-table__loading-mask "
         ></div>
         <div class="loading-entity">
           <slot
-            v-if="ifHasLoadingSlot"
-            name="loading"
+              v-if="ifHasLoadingSlot"
+              name="loading"
           />
           <Loading v-else></Loading>
         </div>
       </div>
 
       <div
-        v-if="!pageItems.length && !loading"
-        class="vue3-easy-data-table__message"
+          v-if="!pageItems.length && !loading"
+          class="vue3-easy-data-table__message"
       >
         {{ emptyMessage }}
       </div>
     </div>
     <div
-      v-if="!hideFooter"
-      class="vue3-easy-data-table__footer"
+        v-if="!hideFooter"
+        class="vue3-easy-data-table__footer"
     >
       <div
-        v-if="!hideRowsPerPage"
-        class="pagination__rows-per-page"
+          v-if="!hideRowsPerPage"
+          class="pagination__rows-per-page"
       >
         {{ rowsPerPageMessage }}
         <RowsSelector
-          v-model="rowsPerPageRef"
-          :rows-items="rowsItemsComputed"
+            v-model="rowsPerPageRef"
+            :rows-items="rowsItemsComputed"
         />
       </div>
       <div class="pagination__items-index">
@@ -243,9 +382,9 @@
         {{ rowsOfPageSeparatorMessage }} {{ totalItemsLength }}
       </div>
       <slot
-        v-if="ifHasPaginationSlot"
-        name="pagination"
-        v-bind="{
+          v-if="ifHasPaginationSlot"
+          name="pagination"
+          v-bind="{
           isFirstPage,
           isLastPage,
           currentPaginationNumber,
@@ -255,20 +394,20 @@
         }"
       />
       <PaginationArrows
-        v-else
-        :is-first-page="isFirstPage"
-        :is-last-page="isLastPage"
-        @click-next-page="nextPage"
-        @click-prev-page="prevPage"
+          v-else
+          :is-first-page="isFirstPage"
+          :is-last-page="isLastPage"
+          @click-next-page="nextPage"
+          @click-prev-page="prevPage"
       >
         <template
-          v-if="buttonsPagination"
-          #buttonsPagination
+            v-if="buttonsPagination"
+            #buttonsPagination
         >
           <ButtonsPagination
-            :current-pagination-number="currentPaginationNumber"
-            :max-pagination-number="maxPaginationNumber"
-            @update-page="updatePage"
+              :current-pagination-number="currentPaginationNumber"
+              :max-pagination-number="maxPaginationNumber"
+              @update-page="updatePage"
           />
         </template>
       </PaginationArrows>
@@ -299,11 +438,11 @@ import useRows from '../hooks/useRows';
 import useServerOptions from '../hooks/useServerOptions';
 import useTotalItems from '../hooks/useTotalItems';
 
-import type { Header, Item } from '../types/main';
-import type { HeaderForRender } from '../types/internal';
+import type {Header, Item} from '../types/main';
+import type {HeaderForRender} from '../types/internal';
 
 // eslint-disable-next-line import/extensions
-import { generateColumnContent } from '../utils';
+import {generateColumnContent} from '../utils';
 import propsWithDefault from '../propsWithDefault';
 
 const props = defineProps({
@@ -357,6 +496,7 @@ const {
 // style related computed variables
 const tableHeightPx = computed(() => (tableHeight.value ? `${tableHeight.value}px` : null));
 const tableMinHeightPx = computed(() => `${tableMinHeight.value}px`);
+const windowSize = ref(window.innerWidth);
 
 // global style related variable
 provide('themeColor', themeColor.value);
@@ -378,6 +518,9 @@ const showShadow = ref(false);
 onMounted(() => {
   tableBody.value.addEventListener('scroll', () => {
     showShadow.value = tableBody.value.scrollLeft > 0;
+  });
+  window.addEventListener('resize', () => {
+    windowSize.value = window.innerWidth;
   });
 });
 
@@ -403,9 +546,9 @@ const {
   updateServerOptionsSort,
   updateServerOptionsRowsPerPage,
 } = useServerOptions(
-  serverOptions,
-  multiSort,
-  emits,
+    serverOptions,
+    multiSort,
+    emits,
 );
 
 const {
@@ -416,25 +559,25 @@ const {
   isMultiSorting,
   getMultiSortNumber,
 } = useHeaders(
-  showIndexSymbol,
-  checkboxColumnWidth,
-  expandColumnWidth,
-  fixedCheckbox,
-  fixedExpand,
-  fixedIndex,
-  headers,
-  ifHasExpandSlot,
-  indexColumnWidth,
-  isMultipleSelectable,
-  isServerSideMode,
-  mustSort,
-  serverOptionsComputed,
-  showIndex,
-  sortBy,
-  sortType,
-  multiSort,
-  updateServerOptionsSort,
-  emits,
+    showIndexSymbol,
+    checkboxColumnWidth,
+    expandColumnWidth,
+    fixedCheckbox,
+    fixedExpand,
+    fixedIndex,
+    headers,
+    ifHasExpandSlot,
+    indexColumnWidth,
+    isMultipleSelectable,
+    isServerSideMode,
+    mustSort,
+    serverOptionsComputed,
+    showIndex,
+    sortBy,
+    sortType,
+    multiSort,
+    updateServerOptionsSort,
+    emits,
 );
 
 const {
@@ -442,10 +585,10 @@ const {
   rowsPerPageRef,
   updateRowsPerPage,
 } = useRows(
-  isServerSideMode,
-  rowsItems,
-  serverOptions,
-  rowsPerPage,
+    isServerSideMode,
+    rowsItems,
+    serverOptions,
+    rowsPerPage,
 );
 
 const {
@@ -455,16 +598,16 @@ const {
   toggleSelectAll,
   toggleSelectItem,
 } = useTotalItems(
-  clientSortOptions,
-  filterOptions,
-  isServerSideMode,
-  items,
-  itemsSelected,
-  searchField,
-  searchValue,
-  serverItemsLength,
-  multiSort,
-  emits,
+    clientSortOptions,
+    filterOptions,
+    isServerSideMode,
+    items,
+    itemsSelected,
+    searchField,
+    searchValue,
+    serverItemsLength,
+    multiSort,
+    emits,
 );
 
 const {
@@ -477,13 +620,13 @@ const {
   updatePage,
   updateCurrentPaginationNumber,
 } = usePagination(
-  currentPage,
-  isServerSideMode,
-  loading,
-  totalItemsLength,
-  rowsPerPageRef,
-  serverOptions,
-  updateServerOptionsPage,
+    currentPage,
+    isServerSideMode,
+    loading,
+    totalItemsLength,
+    rowsPerPageRef,
+    serverOptions,
+    updateServerOptionsPage,
 );
 
 const {
@@ -492,15 +635,15 @@ const {
   multipleSelectStatus,
   pageItems,
 } = usePageItems(
-  currentPaginationNumber,
-  isMultipleSelectable,
-  isServerSideMode,
-  items,
-  rowsPerPageRef,
-  selectItemsComputed,
-  showIndex,
-  totalItems,
-  totalItemsLength,
+    currentPaginationNumber,
+    isMultipleSelectable,
+    isServerSideMode,
+    items,
+    rowsPerPageRef,
+    selectItemsComputed,
+    showIndex,
+    totalItems,
+    totalItemsLength,
 );
 
 const prevPageEndIndex = computed(() => {
@@ -513,9 +656,9 @@ const {
   updateExpandingItemIndexList,
   clearExpandingItemIndexList,
 } = useExpandableRow(
-  pageItems,
-  prevPageEndIndex,
-  emits,
+    pageItems,
+    prevPageEndIndex,
+    emits,
 );
 
 const {
@@ -523,16 +666,16 @@ const {
   lastFixedColumn,
   fixedColumnsInfos,
 } = useFixedColumn(
-  headersForRender,
+    headersForRender,
 );
 
 const {
   clickRow,
 } = useClickRow(
-  clickEventType,
-  isMultipleSelectable,
-  showIndex,
-  emits,
+    clickEventType,
+    isMultipleSelectable,
+    showIndex,
+    emits,
 );
 
 // template style generation function
@@ -577,15 +720,15 @@ watch([searchValue, filterOptions], () => {
 
 watch([currentPaginationNumber, clientSortOptions, searchField, searchValue, filterOptions], () => {
   clearExpandingItemIndexList();
-}, { deep: true });
+}, {deep: true});
 
 watch(pageItems, (value) => {
   emits('updatePageItems', value);
-}, { deep: true });
+}, {deep: true});
 
 watch(totalItems, (value) => {
   emits('updateTotalItems', value);
-}, { deep: true });
+}, {deep: true});
 
 
 defineExpose({
@@ -607,56 +750,56 @@ defineExpose({
 </script>
 
 <style>
-  :root {
-    /*table*/
-    --easy-table-border: 1px solid #e0e0e0;
-    --easy-table-row-border: 1px solid #e0e0e0;
-    /*header-row*/
-    --easy-table-header-font-size: 12px;
-    --easy-table-header-height: 36px;
-    --easy-table-header-font-color: #373737;
-    --easy-table-header-background-color: #fff;
-    /*header-item*/
-    --easy-table-header-item-padding: 0px 10px;
-    /*body-row*/
-    --easy-table-body-row-height: 36px;
-    --easy-table-body-row-font-size: 12px;
+:root {
+  /*table*/
+  --easy-table-border: 1px solid #e0e0e0;
+  --easy-table-row-border: 1px solid #e0e0e0;
+  /*header-row*/
+  --easy-table-header-font-size: 12px;
+  --easy-table-header-height: 36px;
+  --easy-table-header-font-color: #373737;
+  --easy-table-header-background-color: #fff;
+  /*header-item*/
+  --easy-table-header-item-padding: 0px 10px;
+  /*body-row*/
+  --easy-table-body-row-height: 36px;
+  --easy-table-body-row-font-size: 12px;
 
-    --easy-table-body-row-font-color: #212121;
-    --easy-table-body-row-background-color: #fff;
+  --easy-table-body-row-font-color: #212121;
+  --easy-table-body-row-background-color: #fff;
 
-    --easy-table-body-row-hover-font-color: #212121;
-    --easy-table-body-row-hover-background-color: #eee;
+  --easy-table-body-row-hover-font-color: #212121;
+  --easy-table-body-row-hover-background-color: #eee;
 
-    --easy-table-body-even-row-font-color: #212121;
-    --easy-table-body-even-row-background-color: #fafafa;
-    /*body-item*/
-    --easy-table-body-item-padding: 0px 10px;
-    /*footer*/
-    --easy-table-footer-background-color: #fff;
-    --easy-table-footer-font-color: #212121;
-    --easy-table-footer-font-size: 12px;
-    --easy-table-footer-padding: 0px 5px;
-    --easy-table-footer-height: 36px;
-    /**footer-rowsPerPage**/
-    --easy-table-rows-per-page-selector-width: auto;
-    --easy-table-rows-per-page-selector-option-padding: 5px;
-    --easy-table-rows-per-page-selector-z-index: auto;
-    /*message*/
-    --easy-table-message-font-color: #212121;
-    --easy-table-message-font-size: 12px;
-    --easy-table-message-padding: 20px;
-    /*loading-mask*/
-    --easy-table-loading-mask-background-color: #fff;
-    --easy-table-loading-mask-opacity: 0.5;
-    /*scroll-bar*/
-    --easy-table-scrollbar-track-color: #fff;
-    --easy-table-scrollbar-color: #fff;
-    --easy-table-scrollbar-thumb-color: #c1c1c1;
-    --easy-table-scrollbar-corner-color: #fff;
-    /*buttons-pagination*/
-    --easy-table-buttons-pagination-border: 1px solid #e0e0e0;
-  }
+  --easy-table-body-even-row-font-color: #212121;
+  --easy-table-body-even-row-background-color: #fafafa;
+  /*body-item*/
+  --easy-table-body-item-padding: 0px 10px;
+  /*footer*/
+  --easy-table-footer-background-color: #fff;
+  --easy-table-footer-font-color: #212121;
+  --easy-table-footer-font-size: 12px;
+  --easy-table-footer-padding: 0px 5px;
+  --easy-table-footer-height: 36px;
+  /**footer-rowsPerPage**/
+  --easy-table-rows-per-page-selector-width: auto;
+  --easy-table-rows-per-page-selector-option-padding: 5px;
+  --easy-table-rows-per-page-selector-z-index: auto;
+  /*message*/
+  --easy-table-message-font-color: #212121;
+  --easy-table-message-font-size: 12px;
+  --easy-table-message-padding: 20px;
+  /*loading-mask*/
+  --easy-table-loading-mask-background-color: #fff;
+  --easy-table-loading-mask-opacity: 0.5;
+  /*scroll-bar*/
+  --easy-table-scrollbar-track-color: #fff;
+  --easy-table-scrollbar-color: #fff;
+  --easy-table-scrollbar-thumb-color: #c1c1c1;
+  --easy-table-scrollbar-corner-color: #fff;
+  /*buttons-pagination*/
+  --easy-table-buttons-pagination-border: 1px solid #e0e0e0;
+}
 </style>
 
 <style lang="scss" scoped>
@@ -665,7 +808,29 @@ defineExpose({
 .vue3-easy-data-table__main {
   min-height: v-bind(tableMinHeightPx);
 }
+
 .vue3-easy-data-table__main.fixed-height {
   height: v-bind(tableHeightPx);
+}
+
+.easy-datatable-mobile-column {
+  display: flex;
+  flex-direction: row;
+
+  > div {
+    width: 50%;
+  }
+
+  .easy-data-table-mobile-field-name {
+    table {
+      min-height: 100%;
+    }
+  }
+
+  .easy-data-table-mobile-field-value {
+    .easy-checkbox {
+      margin: 0;
+    }
+  }
 }
 </style>

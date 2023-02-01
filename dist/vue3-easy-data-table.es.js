@@ -1195,11 +1195,15 @@ var propsWithDefault = {
   showIndexSymbol: {
     type: String,
     default: "#"
+  },
+  mobileBreakpoint: {
+    type: Number,
+    default: 1200
   }
 };
 var DataTable_vue_vue_type_style_index_0_lang = "";
 var DataTable_vue_vue_type_style_index_1_scoped_true_lang = "";
-const _withScopeId = (n) => (pushScopeId("data-v-5e3553a3"), n = n(), popScopeId(), n);
+const _withScopeId = (n) => (pushScopeId("data-v-167babfa"), n = n(), popScopeId(), n);
 const _hoisted_1 = ["id"];
 const _hoisted_2 = ["onClick"];
 const _hoisted_3 = {
@@ -1213,25 +1217,40 @@ const _hoisted_4 = {
 const _hoisted_5 = ["onClick", "onDblclick"];
 const _hoisted_6 = ["onClick"];
 const _hoisted_7 = ["colspan"];
-const _hoisted_8 = {
+const _hoisted_8 = ["onClick", "onDblclick"];
+const _hoisted_9 = ["colspan", "onClick"];
+const _hoisted_10 = { class: "easy-data-table-mobile-field-name" };
+const _hoisted_11 = ["onClick"];
+const _hoisted_12 = { key: 0 };
+const _hoisted_13 = {
+  key: 2,
+  class: "header-text"
+};
+const _hoisted_14 = {
+  key: 4,
+  class: "multi-sort__number"
+};
+const _hoisted_15 = { class: "easy-data-table-mobile-field-value" };
+const _hoisted_16 = ["colspan"];
+const _hoisted_17 = {
   key: 0,
   class: "vue3-easy-data-table__loading"
 };
-const _hoisted_9 = /* @__PURE__ */ _withScopeId(() => /* @__PURE__ */ createElementVNode("div", { class: "vue3-easy-data-table__loading-mask" }, null, -1));
-const _hoisted_10 = { class: "loading-entity" };
-const _hoisted_11 = {
+const _hoisted_18 = /* @__PURE__ */ _withScopeId(() => /* @__PURE__ */ createElementVNode("div", { class: "vue3-easy-data-table__loading-mask" }, null, -1));
+const _hoisted_19 = { class: "loading-entity" };
+const _hoisted_20 = {
   key: 1,
   class: "vue3-easy-data-table__message"
 };
-const _hoisted_12 = {
+const _hoisted_21 = {
   key: 0,
   class: "vue3-easy-data-table__footer"
 };
-const _hoisted_13 = {
+const _hoisted_22 = {
   key: 0,
   class: "pagination__rows-per-page"
 };
-const _hoisted_14 = { class: "pagination__items-index" };
+const _hoisted_23 = { class: "pagination__items-index" };
 const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "DataTable",
   props: __spreadProps(__spreadValues({}, propsWithDefault), {
@@ -1259,8 +1278,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { expose, emit: emits }) {
     const props = __props;
     useCssVars((_ctx) => ({
-      "1fa77e8b": unref(tableMinHeightPx),
-      "88e05d76": unref(tableHeightPx)
+      "6e0f6856": unref(tableMinHeightPx),
+      "64e1183b": unref(tableHeightPx)
     }));
     const {
       tableNodeId,
@@ -1299,6 +1318,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     } = toRefs(props);
     const tableHeightPx = computed(() => tableHeight.value ? `${tableHeight.value}px` : null);
     const tableMinHeightPx = computed(() => `${tableMinHeight.value}px`);
+    const windowSize = ref(window.innerWidth);
     provide("themeColor", themeColor.value);
     const slots = useSlots();
     const ifHasPaginationSlot = computed(() => !!slots.pagination);
@@ -1312,6 +1332,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     onMounted(() => {
       tableBody.value.addEventListener("scroll", () => {
         showShadow.value = tableBody.value.scrollLeft > 0;
+      });
+      window.addEventListener("resize", () => {
+        windowSize.value = window.innerWidth;
       });
     });
     const isMultipleSelectable = computed(() => itemsSelected.value !== null);
@@ -1463,7 +1486,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 }, null, 4);
               }), 128))
             ]),
-            unref(headersForRender).length && !_ctx.hideHeader ? (openBlock(), createElementBlock("thead", {
+            unref(headersForRender).length && !_ctx.hideHeader && windowSize.value >= _ctx.mobileBreakpoint ? (openBlock(), createElementBlock("thead", {
               key: 0,
               class: normalizeClass(["vue3-easy-data-table__header", [_ctx.headerClassName]])
             }, [
@@ -1516,7 +1539,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                 },
                 headers: unref(headersForRender)
               })), void 0, true),
-              (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pageItems), (item, index) => {
+              windowSize.value >= _ctx.mobileBreakpoint ? (openBlock(true), createElementBlock(Fragment, { key: 0 }, renderList(unref(pageItems), (item, index) => {
                 return openBlock(), createElementBlock(Fragment, { key: index }, [
                   createElementVNode("tr", {
                     class: normalizeClass([
@@ -1571,6 +1594,99 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                     ], 8, _hoisted_7)
                   ], 2)) : createCommentVNode("", true)
                 ], 64);
+              }), 128)) : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(unref(pageItems), (item, indexx) => {
+                return openBlock(), createElementBlock(Fragment, { key: indexx }, [
+                  createElementVNode("tr", {
+                    class: normalizeClass([
+                      { "even-row": (indexx + 1) % 2 === 0 },
+                      typeof _ctx.bodyRowClassName === "string" ? _ctx.bodyRowClassName : _ctx.bodyRowClassName(item, indexx + 1)
+                    ]),
+                    onClick: ($event) => {
+                      unref(clickRow)(item, "single");
+                      _ctx.clickRowToExpand && unref(updateExpandingItemIndexList)(indexx + unref(prevPageEndIndex), item, $event);
+                    },
+                    onDblclick: ($event) => unref(clickRow)(item, "double")
+                  }, [
+                    createElementVNode("td", {
+                      colspan: unref(headerColumns).length,
+                      class: normalizeClass([{
+                        "can-expand": unref(headerColumns).find((c) => c === "expand")
+                      }]),
+                      onClick: ($event) => unref(headerColumns).find((c) => c === "expand") ? unref(updateExpandingItemIndexList)(indexx + unref(prevPageEndIndex), item, $event) : null
+                    }, [
+                      (openBlock(true), createElementBlock(Fragment, null, renderList(unref(headerColumns), (column, i) => {
+                        return openBlock(), createElementBlock("div", {
+                          key: i,
+                          class: "easy-datatable-mobile-column"
+                        }, [
+                          createElementVNode("div", _hoisted_10, [
+                            createElementVNode("table", null, [
+                              createElementVNode("thead", {
+                                class: normalizeClass(["vue3-easy-data-table__header", [_ctx.headerClassName]])
+                              }, [
+                                createElementVNode("tr", null, [
+                                  createElementVNode("th", {
+                                    class: normalizeClass([{
+                                      sortable: unref(headersForRender)[i].sortable,
+                                      "none": unref(headersForRender)[i].sortable && unref(headersForRender)[i].sortType === "none",
+                                      "desc": unref(headersForRender)[i].sortable && unref(headersForRender)[i].sortType === "desc",
+                                      "asc": unref(headersForRender)[i].sortable && unref(headersForRender)[i].sortType === "asc",
+                                      "shadow": unref(headersForRender)[i].value === unref(lastFixedColumn)
+                                    }, typeof _ctx.headerItemClassName === "string" ? _ctx.headerItemClassName : _ctx.headerItemClassName(unref(headersForRender)[i], indexx + 1)]),
+                                    style: normalizeStyle(getFixedDistance(unref(headersForRender)[i].value)),
+                                    onClick: withModifiers(($event) => unref(headersForRender)[i].sortable && unref(headersForRender)[i].sortType ? unref(updateSortField)(unref(headersForRender)[i].value, unref(headersForRender)[i].sortType) : null, ["stop"])
+                                  }, [
+                                    unref(headersForRender)[i].text === "checkbox" ? (openBlock(), createElementBlock("span", _hoisted_12)) : (openBlock(), createElementBlock("span", {
+                                      key: 1,
+                                      class: normalizeClass(["header", `direction-${unref(headerTextDirection)}`])
+                                    }, [
+                                      unref(slots)[`header-${unref(headersForRender)[i].value}`] ? renderSlot(_ctx.$slots, `header-${unref(headersForRender)[i].value}`, normalizeProps(mergeProps({ key: 0 }, unref(headersForRender)[i])), void 0, true) : unref(slots)[`header-${unref(headersForRender)[i].value.toLowerCase()}`] ? renderSlot(_ctx.$slots, `header-${unref(headersForRender)[i].value.toLowerCase()}`, normalizeProps(mergeProps({ key: 1 }, unref(headersForRender)[i])), void 0, true) : (openBlock(), createElementBlock("span", _hoisted_13, toDisplayString(unref(headersForRender)[i].text), 1)),
+                                      unref(headersForRender)[i].sortable ? (openBlock(), createElementBlock("i", {
+                                        key: unref(headersForRender)[i].sortType ? unref(headersForRender)[i].sortType : "none",
+                                        class: normalizeClass(["sortType-icon", { "desc": unref(headersForRender)[i].sortType === "desc" }])
+                                      }, null, 2)) : createCommentVNode("", true),
+                                      unref(multiSort) && unref(isMultiSorting)(unref(headersForRender)[i].value) ? (openBlock(), createElementBlock("span", _hoisted_14, toDisplayString(unref(getMultiSortNumber)(unref(headersForRender)[i].value)), 1)) : createCommentVNode("", true)
+                                    ], 2))
+                                  ], 14, _hoisted_11)
+                                ])
+                              ], 2)
+                            ])
+                          ]),
+                          createElementVNode("div", _hoisted_15, [
+                            unref(slots)[`item-${column}`] ? renderSlot(_ctx.$slots, `item-${column}`, normalizeProps(mergeProps({ key: 0 }, item)), void 0, true) : unref(slots)[`item-${column.toLowerCase()}`] ? renderSlot(_ctx.$slots, `item-${column.toLowerCase()}`, normalizeProps(mergeProps({ key: 1 }, item)), void 0, true) : column === "expand" ? (openBlock(), createElementBlock("i", {
+                              key: 2,
+                              class: normalizeClass(["expand-icon", { "expanding": unref(expandingItemIndexList).includes(unref(prevPageEndIndex) + indexx) }])
+                            }, null, 2)) : column === "checkbox" ? (openBlock(), createBlock(SingleSelectCheckBox, {
+                              key: 3,
+                              checked: item[column],
+                              onChange: ($event) => unref(toggleSelectItem)(item)
+                            }, null, 8, ["checked", "onChange"])) : (openBlock(), createElementBlock(Fragment, { key: 4 }, [
+                              createTextVNode(toDisplayString(unref(generateColumnContent)(column, item)), 1)
+                            ], 64))
+                          ])
+                        ]);
+                      }), 128))
+                    ], 10, _hoisted_9)
+                  ], 42, _hoisted_8),
+                  unref(ifHasExpandSlot) && unref(expandingItemIndexList).includes(indexx + unref(prevPageEndIndex)) ? (openBlock(), createElementBlock("tr", {
+                    key: 0,
+                    class: normalizeClass([
+                      { "even-row": (indexx + 1) % 2 === 0 },
+                      typeof _ctx.bodyExpandRowClassName === "string" ? _ctx.bodyExpandRowClassName : _ctx.bodyExpandRowClassName(item, indexx + 1)
+                    ])
+                  }, [
+                    createElementVNode("td", {
+                      colspan: unref(headersForRender).length,
+                      class: "expand"
+                    }, [
+                      item.expandLoading ? (openBlock(), createBlock(LoadingLine, {
+                        key: 0,
+                        class: "expand-loading"
+                      })) : createCommentVNode("", true),
+                      renderSlot(_ctx.$slots, "expand", normalizeProps(guardReactiveProps(item)), void 0, true)
+                    ], 8, _hoisted_16)
+                  ], 2)) : createCommentVNode("", true)
+                ], 64);
               }), 128)),
               renderSlot(_ctx.$slots, "body-append", normalizeProps(guardReactiveProps({
                 items: unref(pageItems),
@@ -1587,16 +1703,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               })), void 0, true)
             ], 2)) : createCommentVNode("", true)
           ], 8, _hoisted_1),
-          unref(loading) ? (openBlock(), createElementBlock("div", _hoisted_8, [
-            _hoisted_9,
-            createElementVNode("div", _hoisted_10, [
+          unref(loading) ? (openBlock(), createElementBlock("div", _hoisted_17, [
+            _hoisted_18,
+            createElementVNode("div", _hoisted_19, [
               unref(ifHasLoadingSlot) ? renderSlot(_ctx.$slots, "loading", { key: 0 }, void 0, true) : (openBlock(), createBlock(Loading, { key: 1 }))
             ])
           ])) : createCommentVNode("", true),
-          !unref(pageItems).length && !unref(loading) ? (openBlock(), createElementBlock("div", _hoisted_11, toDisplayString(_ctx.emptyMessage), 1)) : createCommentVNode("", true)
+          !unref(pageItems).length && !unref(loading) ? (openBlock(), createElementBlock("div", _hoisted_20, toDisplayString(_ctx.emptyMessage), 1)) : createCommentVNode("", true)
         ], 2),
-        !_ctx.hideFooter ? (openBlock(), createElementBlock("div", _hoisted_12, [
-          !_ctx.hideRowsPerPage ? (openBlock(), createElementBlock("div", _hoisted_13, [
+        !_ctx.hideFooter ? (openBlock(), createElementBlock("div", _hoisted_21, [
+          !_ctx.hideRowsPerPage ? (openBlock(), createElementBlock("div", _hoisted_22, [
             createTextVNode(toDisplayString(_ctx.rowsPerPageMessage) + " ", 1),
             createVNode(RowsSelector, {
               modelValue: unref(rowsPerPageRef),
@@ -1604,7 +1720,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "rows-items": unref(rowsItemsComputed)
             }, null, 8, ["modelValue", "rows-items"])
           ])) : createCommentVNode("", true),
-          createElementVNode("div", _hoisted_14, toDisplayString(`${unref(currentPageFirstIndex)}\u2013${unref(currentPageLastIndex)}`) + " " + toDisplayString(unref(rowsOfPageSeparatorMessage)) + " " + toDisplayString(unref(totalItemsLength)), 1),
+          createElementVNode("div", _hoisted_23, toDisplayString(`${unref(currentPageFirstIndex)}\u2013${unref(currentPageLastIndex)}`) + " " + toDisplayString(unref(rowsOfPageSeparatorMessage)) + " " + toDisplayString(unref(totalItemsLength)), 1),
           unref(ifHasPaginationSlot) ? renderSlot(_ctx.$slots, "pagination", normalizeProps(mergeProps({ key: 1 }, {
             isFirstPage: unref(isFirstPage),
             isLastPage: unref(isLastPage),
@@ -1636,7 +1752,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
   }
 });
-var DataTable = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-5e3553a3"]]);
+var DataTable = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-167babfa"]]);
 if (typeof window !== "undefined" && window.Vue) {
   window.Vue.createApp({}).component("Vue3EasyDataTable", DataTable);
 }
